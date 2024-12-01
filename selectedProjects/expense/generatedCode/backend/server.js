@@ -14,10 +14,12 @@ const corsOptions = {
     credentials: true, // Allow cookies or authorization headers
   };
   
-app.use(cors(corsOptions));
-app.options("*", cors(corsOptions)); // Handle preflight requests
-
-
+  app.use(
+    cors({
+      origin: "*", // Allow all origins (for debugging only)
+    })
+  );
+  
 app.use(express.json());
 app.use("/api", userRoutes);
 app.use("/api", expenseRoutes);
