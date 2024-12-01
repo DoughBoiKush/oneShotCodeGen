@@ -1,0 +1,1 @@
+const router = require('express').Router();const pizzaPlaceController = require('../controllers/pizzaPlace');const { auth } = require('../middleware/auth');router.use(auth);router.get('/', pizzaPlaceController.getAllPlaces);router.post('/', pizzaPlaceController.createPlace);router.put('/:id', pizzaPlaceController.updatePlace);module.exports = router;

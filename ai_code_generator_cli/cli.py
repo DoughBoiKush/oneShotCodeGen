@@ -1,7 +1,7 @@
 import click
 import asyncio
 from enum import Enum
-from typing import Optional, Dict
+from typing import Optional, Dict, Any
 from rich.console import Console
 from rich.progress import Progress, SpinnerColumn, TextColumn
 from datetime import datetime
@@ -11,6 +11,7 @@ from ai_code_generator_cli.chains.requirements_chain import create_requirements_
 from ai_code_generator_cli.chains.code_generation_chain import create_code_chains
 from ai_code_generator_cli.utils.file_utils import process_code_structure
 from ai_code_generator_cli.config.settings import settings
+from ai_code_generator_cli.steps.code_generation_step import CodeGenerationStep
 import json
 
 console = Console()
@@ -19,6 +20,8 @@ class ProcessingMode(str, Enum):
     REQUIREMENTS = "requirements"
     CODE = "code"
     FULL = "full"
+    STEP = "step"
+    SETUP = "setup"
 
 class PromptVersion(str, Enum):
     V1 = "v1"
@@ -242,13 +245,106 @@ class CodeGenerator:
             console.print(f"\n[red]Error:[/red] {str(e)}")
             raise
 
+    async def run_step_pipeline(self, pipeline_name: str, initial_context: Dict[str, Any], create_files: bool = False):
+        from .config.pipeline_config import get_pipeline_config
+        
+        # Create project directory
+        self.project_dir = self.create_project_directory()
+        base_path = os.path.join(self.project_dir, "generatedCode")
+        docs_path = os.path.join(self.project_dir, "docs")
+        
+        # Get pipeline configuration
+        steps = get_pipeline_config(
+            pipeline_name=pipeline_name,
+            model_provider=self.model_provider,
+            func_version=self.func_version,
+            tech_version=self.tech_version,
+            code_version=self.code_version,
+            base_path=base_path
+        )
+        
+        if not steps:
+            raise ValueError(f"Pipeline '{pipeline_name}' not found")
+        
+        # Execute steps
+        step_outputs = {}
+        with Progress(
+            SpinnerColumn(),
+            TextColumn("[progress.description]{task.description}"),
+            console=console
+        ) as progress:
+            for step in steps:
+                task = progress.add_task(f"Generating {step.name}...", total=None)
+                result = step.execute(step_outputs, initial_context)
+                step_outputs[step.name] = result
+                
+                # Save step output as markdown in docs
+                output_file = os.path.join(docs_path, f"{step.name}.md")
+                with open(output_file, 'w', encoding='utf-8') as f:
+                    f.write(f"# {step.name.replace('_', ' ').title()}\n\n")
+                    f.write(result)
+                console.print(f"[green]✓[/green] Saved {step.name} output to: {output_file}")
+                
+                # For code steps, save LLM output and process code structure if needed
+                if isinstance(step, CodeGenerationStep):
+                    # Save the LLM output
+                    output_dir = os.path.join(self.project_dir, "outputCode", step.name)
+                    os.makedirs(output_dir, exist_ok=True)
+                    
+                    # Save raw output
+                    with open(os.path.join(output_dir, "output.txt"), "w") as f:
+                        f.write(result)
+                    console.print(f"[blue]Saved {step.name} LLM output to:[/blue] {output_dir}/output.txt")
+                    
+                    # Process code structure if in setup mode
+                    if create_files:
+                        try:
+                            console.print(f"[yellow]Creating {step.name} implementation files...[/yellow]")
+                            process_code_structure(
+                                result,
+                                base_path=base_path,
+                                component_type=step.name.replace('_code', '').replace('1', '').replace('2', '')
+                            )
+                            console.print(f"[green]✓[/green] Created {step.name} implementation files")
+                        except Exception as e:
+                            console.print(f"[red]Error processing code structure: {e}[/red]")
+                
+                progress.update(task, completed=True)
+        
+        # Save project summary
+        summary_path = os.path.join(self.project_dir, "project_summary.md")
+        with open(summary_path, 'w', encoding='utf-8') as f:
+            f.write("# Project Summary\n\n")
+            f.write(f"User Input: {initial_context.get('user_input', '')}\n\n")
+            f.write(f"Mode: step{'_with_files' if create_files else ''}\n")
+            f.write(f"Versions Used:\n")
+            f.write(f"- Functional Requirements: {self.func_version}\n")
+            f.write(f"- Technical Requirements: {self.tech_version}\n")
+            f.write(f"- Code Generation: {self.code_version}\n")
+            f.write(f"Generated: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}\n\n")
+        
+        console.print(f"\n[green]✓[/green] Project files saved at: {self.project_dir}")
+        
+        return step_outputs
+
 @click.command()
 @click.argument('user_input', type=str)
 @click.option(
+    '--beautify',
+    is_flag=True,
+    help='Beautify generated code files using prettier'
+)
+@click.option(
     '--mode',
-    type=click.Choice(['requirements', 'code', 'full']),
-    default='requirements',
-    help='Processing mode: requirements, code, or full project generation'
+    type=click.Choice(['requirements', 'code', 'full', 'step', 'setup']),
+    default='setup',
+    help='Processing mode: requirements, code, full project generation, or step-based execution'
+)
+@click.option(
+    '--pipeline',
+    type=click.Choice(['oneShotCodeGenV1','requirementsV1']),
+    default='oneShotCodeGenV1',
+    help='Pipeline to execute in step mode'
 )
 @click.option(
     '--func-version',
@@ -286,7 +382,9 @@ class CodeGenerator:
 )
 def main(
     user_input: str,
+    beautify: bool,
     mode: str,
+    pipeline: str,
     func_version: str,
     tech_version: str,
     code_version: str,
@@ -322,7 +420,23 @@ def main(
     console.print(f"Model: {model}")
     console.print(f"Versions: func={func_version}, tech={tech_version}, code={code_version}\n")
     
-    asyncio.run(generator.process_input(user_input, ProcessingMode(mode)))
+    # Handle different modes
+    if mode in ['step', 'setup']:
+        create_files = mode == 'setup'
+        asyncio.run(generator.run_step_pipeline(
+            pipeline_name=pipeline,
+            initial_context={
+                'user_input': user_input,
+                'beautify': beautify
+            },
+            create_files=create_files
+        ))
+    else:
+        asyncio.run(generator.process_input(
+            user_input, 
+            ProcessingMode(mode),
+            beautify=beautify
+        ))
 
 if __name__ == '__main__':
     main() 

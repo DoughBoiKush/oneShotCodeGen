@@ -1,0 +1,1 @@
+const express = require('express');const router = express.Router();const {uploadDocument,getDocuments} = require('../controllers/documentController');const {authMiddleware,adminOnly} = require('../middleware/auth');router.post('/',authMiddleware,uploadDocument);router.get('/',authMiddleware,getDocuments);module.exports = router;

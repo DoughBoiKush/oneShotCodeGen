@@ -1,0 +1,1 @@
+const router = require('express').Router();const consumptionController = require('../controllers/consumption');const { auth } = require('../middleware/auth');router.use(auth);router.post('/', consumptionController.logConsumption);router.get('/stats', consumptionController.getStats);module.exports = router;

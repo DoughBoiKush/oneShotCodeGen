@@ -1,0 +1,1 @@
+import React from 'react';import{Card,CardContent,Typography}from'@mui/material';const MetricsCard=({title,value})=>{return(<Card sx={{minWidth:200,m:1}}><CardContent><Typography variant='h6' gutterBottom>{title}</Typography><Typography variant='h4'>{value}</Typography></CardContent></Card>);};export default MetricsCard;

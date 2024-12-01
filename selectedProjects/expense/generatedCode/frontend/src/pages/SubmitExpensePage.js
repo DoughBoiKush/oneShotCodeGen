@@ -1,0 +1,1 @@
+import SubmitExpense from '../components/SubmitExpense';const SubmitExpensePage = () => <SubmitExpense />;export default SubmitExpensePage;

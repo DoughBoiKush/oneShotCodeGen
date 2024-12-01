@@ -1,0 +1,1 @@
+import React from'react';import{Box}from'@mui/material';import Login from'../components/auth/Login';const LoginPage=()=>(<Box sx={{minHeight:'100vh',bgcolor:'background.default'}}><Login/></Box>);export default LoginPage;

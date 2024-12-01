@@ -1,0 +1,1 @@
+import React from 'react';import {Stack,Skeleton} from '@mui/material';const LoadingSkeleton=()=>(<Stack spacing={1} sx={{p:2}}><Skeleton variant='rectangular' height={60}/><Skeleton variant='rectangular' height={40}/><Skeleton variant='rectangular' height={40}/><Skeleton variant='rectangular' height={40}/></Stack>);export default LoadingSkeleton;

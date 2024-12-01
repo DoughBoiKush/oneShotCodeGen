@@ -1,0 +1,13 @@
+const sequelize = require('../config/database');
+const User = require('./User');
+const Recommendation = require('./Recommendation');
+const Rating = require('./Rating');
+const Friendship = require('./Friendship');
+User.hasMany(Recommendation);
+Recommendation.belongsTo(User);
+User.hasMany(Rating);
+Rating.belongsTo(User);
+Recommendation.hasMany(Rating);
+Rating.belongsTo(Recommendation);
+User.belongsToMany(User, {through: Friendship,as: 'friends',foreignKey: 'userId',otherKey: 'friendId'});
+module.exports = {sequelize,User,Recommendation,Rating,Friendship};

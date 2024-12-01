@@ -1,0 +1,1 @@
+import React from'react';import{Stack,Skeleton}from'@mui/material';export const LoadingState=()=>{return(<Stack spacing={1}><Skeleton variant='rectangular'height={60}/><Skeleton variant='rectangular'height={200}/><Skeleton variant='rectangular'height={200}/></Stack>);};

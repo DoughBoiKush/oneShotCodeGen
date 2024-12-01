@@ -3,8 +3,74 @@ import os
 import subprocess
 from rich.console import Console
 import re
+import shutil
 
 console = Console()
+
+def check_prettier():
+    """Check if prettier can be run via npx."""
+    try:
+        result = subprocess.run(
+            'npx prettier --version',
+            shell=True,
+            capture_output=True,
+            text=True
+        )
+        if result.returncode == 0:
+            console.print("[green]prettier is available via npx[/green]")
+            return True
+            
+        # If prettier not found, try to install it locally
+        console.print("[yellow]Installing prettier locally...[/yellow]")
+        install_result = subprocess.run(
+            'npm install --save-dev prettier',
+            shell=True,
+            capture_output=True,
+            text=True
+        )
+        
+        if install_result.returncode == 0:
+            console.print("[green]Successfully installed prettier locally[/green]")
+            return True
+        else:
+            console.print(f"[red]Failed to install prettier: {install_result.stderr}[/red]")
+            return False
+            
+    except Exception as e:
+        console.print(f"[red]Error checking/installing prettier: {str(e)}[/red]")
+        return False
+
+def beautify_file(file_path: str):
+    """Beautify a file using prettier."""
+    try:
+        if not file_path.endswith(('.js', '.jsx', '.ts', '.tsx', '.css', '.html', '.json')):
+            console.print(f"[yellow]Skipping non-supported file:[/yellow] {file_path}")
+            return
+            
+        console.print(f"[yellow]Beautifying file:[/yellow] {file_path}")
+        
+        if not os.path.exists(file_path):
+            console.print(f"[red]File not found:[/red] {file_path}")
+            return
+            
+        cmd = f'npx prettier --write "{file_path}"'
+        console.print(f"[yellow]Running command:[/yellow] {cmd}")
+        
+        result = subprocess.run(
+            cmd,
+            shell=True,
+            capture_output=True,
+            text=True
+        )
+        
+        if result.returncode == 0:
+            console.print(f"[green]Successfully beautified:[/green] {file_path}")
+        else:
+            console.print(f"[red]Failed to beautify {file_path}[/red]")
+            console.print(f"[red]Error:[/red] {result.stderr}")
+            
+    except Exception as e:
+        console.print(f"[red]Error beautifying {file_path}:[/red] {str(e)}")
 
 def clean_json_string(json_str: str) -> str:
     """Clean and format JSON string for parsing."""
@@ -27,23 +93,29 @@ def create_folder_structure(folders: list, base_path: str) -> None:
         console.print(f"[red]Error creating folders:[/red] {str(e)}")
         raise
 
-def write_files(files: dict, base_path: str) -> None:
+def write_files(files: dict, base_path: str, beautify: bool = False) -> None:
     """Write files from dictionary of file paths and content."""
     try:
         console.print(f"[yellow]Writing files in base path:[/yellow] {base_path}")
+        
+        # Check prettier installation if beautification is requested
+        prettier_available = check_prettier() if beautify else False
+        
         for file_path, content in files.items():
             full_path = os.path.join(base_path, file_path)
             console.print(f"[yellow]Attempting to write file:[/yellow] {full_path}")
             
-            # Debug directory creation
             dir_path = os.path.dirname(full_path)
             console.print(f"[yellow]Ensuring directory exists:[/yellow] {dir_path}")
             os.makedirs(dir_path, exist_ok=True)
             
-            # Write the file
             with open(full_path, 'w', encoding='utf-8') as f:
                 f.write(content)
             console.print(f"[green]Created file:[/green] {full_path}")
+            
+            if beautify and prettier_available:
+                beautify_file(full_path)
+                
     except Exception as e:
         console.print(f"[red]Error writing files:[/red] {str(e)}")
         raise
@@ -89,7 +161,8 @@ def run_commands(commands: list, base_path: str) -> None:
 def process_code_structure(
     code_structure: str, 
     base_path: str = ".", 
-    component_type: str = None
+    component_type: str = None,
+    beautify: bool = False
 ) -> None:
     """Process the code structure JSON and create files/folders."""
     try:
@@ -138,7 +211,7 @@ def process_code_structure(
         files = structure.get("files", {})
         if files:
             console.print(f"\n[yellow]Processing {len(files)} files[/yellow]")
-            write_files(files, base_path)
+            write_files(files, base_path, beautify=beautify)
         
     except Exception as e:
         console.print(f"[red]Error processing code structure:[/red] {str(e)}")

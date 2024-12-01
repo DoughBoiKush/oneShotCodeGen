@@ -1,0 +1,1 @@
+const express = require('express');const router = express.Router();const {createTask,assignTask} = require('../controllers/taskController');const {authMiddleware,adminOnly} = require('../middleware/auth');router.post('/',authMiddleware,adminOnly,createTask);router.post('/assign',authMiddleware,adminOnly,assignTask);module.exports = router;

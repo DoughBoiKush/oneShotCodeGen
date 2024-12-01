@@ -1,0 +1,1 @@
+const { DataTypes } = require('sequelize');module.exports = (sequelize) => {return sequelize.define('Consumption', {id: {type: DataTypes.INTEGER,primaryKey: true,autoIncrement: true},slices: {type: DataTypes.INTEGER,allowNull: false},date: {type: DataTypes.DATE,defaultValue: DataTypes.NOW}})};

@@ -1,0 +1,1 @@
+const router = require('express').Router();const reviewController = require('../controllers/review');const { auth } = require('../middleware/auth');router.use(auth);router.get('/', reviewController.getReviews);router.post('/', reviewController.createReview);module.exports = router;

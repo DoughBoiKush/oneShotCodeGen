@@ -1,0 +1,1 @@
+import useSWR from 'swr';import axios from 'axios';export const useFetch = (url, token) => {const fetcher = (url) => axios.get(url, { headers: { Authorization: `Bearer ${token}` } }).then((res) => res.data);const { data, error, isLoading } = useSWR(url, fetcher);return { data, error, isLoading };};

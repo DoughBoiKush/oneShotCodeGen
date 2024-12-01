@@ -1,0 +1,16 @@
+const sequelize = require('../config/database');
+const User = require('./User');
+const Prompt = require('./Prompt');
+const Chain = require('./Chain');
+const Rating = require('./Rating');
+User.hasMany(Prompt);
+Prompt.belongsTo(User);
+User.hasMany(Rating);
+Rating.belongsTo(User);
+Prompt.hasMany(Rating);
+Rating.belongsTo(Prompt);
+Chain.belongsToMany(Prompt, {through: 'ChainPrompts'});
+Prompt.belongsToMany(Chain, {through: 'ChainPrompts'});
+User.hasMany(Chain);
+Chain.belongsTo(User);
+module.exports = {sequelize,User,Prompt,Chain,Rating};

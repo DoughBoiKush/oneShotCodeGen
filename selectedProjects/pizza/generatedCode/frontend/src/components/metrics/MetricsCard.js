@@ -1,0 +1,1 @@
+import { Card, CardContent, Typography } from '@mui/material';export const MetricsCard = ({ title, value, icon: Icon }) => {return (<Card sx={{ minWidth: 200, m: 1 }}><CardContent><Typography color='textSecondary' gutterBottom>{title}</Typography>{Icon && <Icon sx={{ fontSize: 40, mb: 1 }} />}<Typography variant='h4'>{value}</Typography></CardContent></Card>);};

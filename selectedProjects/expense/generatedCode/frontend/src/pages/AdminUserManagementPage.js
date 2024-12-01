@@ -1,0 +1,1 @@
+import AdminUserManagement from '../components/AdminUserManagement';const AdminUserManagementPage = () => <AdminUserManagement />;export default AdminUserManagementPage;

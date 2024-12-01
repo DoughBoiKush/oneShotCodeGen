@@ -1,0 +1,1 @@
+const { sequelize } = require('../models');const setupDatabase = async () => {try {await sequelize.authenticate();await sequelize.sync({ force: true });console.log('Database connected and synced successfully');} catch (error) {console.error('Database connection failed:', error);}};module.exports = setupDatabase;

@@ -1,0 +1,1 @@
+import { Stack, Skeleton } from '@mui/material';export const LoadingState = ({ count = 3 }) => {return (<Stack spacing={1}>{[...Array(count)].map((_, index) => (<Skeleton key={index} variant='rectangular' height={60}/>))}</Stack>);};

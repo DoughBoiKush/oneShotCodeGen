@@ -1,0 +1,2 @@
+import { Stack, Skeleton } from '@mui/material';
+export const LoadingState = () => (<Stack spacing={1}><Skeleton variant="rectangular" height={60}/><Skeleton variant="rectangular" height={400}/></Stack>);

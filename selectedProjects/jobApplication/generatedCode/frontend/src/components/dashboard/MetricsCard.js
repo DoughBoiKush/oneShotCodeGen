@@ -1,0 +1,1 @@
+import React from'react';import{Card,CardContent,Typography}from'@mui/material';export default function MetricsCard({title,value,icon}){return(<Card sx={{minWidth:200,m:1}}><CardContent><Typography color='textSecondary'gutterBottom>{title}</Typography>{icon}<Typography variant='h5'component='div'>{value}</Typography></CardContent></Card>);}

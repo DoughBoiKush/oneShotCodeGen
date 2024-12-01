@@ -1,0 +1,1 @@
+const sequelize = require('../config/database');const User = require('./User');const Inventory = require('./Inventory');const MenuItem = require('./MenuItem');const Sale = require('./Sale');const SaleItem = require('./SaleItem');Sale.belongsTo(User);SaleItem.belongsTo(Sale);SaleItem.belongsTo(MenuItem);module.exports = {sequelize,User,Inventory,MenuItem,Sale,SaleItem};

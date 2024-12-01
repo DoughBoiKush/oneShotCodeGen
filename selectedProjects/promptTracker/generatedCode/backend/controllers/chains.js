@@ -1,0 +1,6 @@
+const { Chain, Prompt } = require('../models');
+const create = async (req, res) => {try {const chain = await Chain.create({ ...req.body, UserId: req.user.id });res.status(201).json(chain);} catch (error) {res.status(400).json({ message: error.message })}};
+const getAll = async (req, res) => {try {const chains = await Chain.findAll({include: [Prompt]});res.json(chains);} catch (error) {res.status(500).json({ message: error.message })}};
+const update = async (req, res) => {try {const chain = await Chain.findByPk(req.params.id);if (!chain) return res.status(404).json({ message: 'Chain not found' });if (chain.UserId !== req.user.id && req.user.role !== 'admin') return res.status(403).json({ message: 'Unauthorized' });await chain.update(req.body);res.json(chain);} catch (error) {res.status(400).json({ message: error.message })}};
+const remove = async (req, res) => {try {const chain = await Chain.findByPk(req.params.id);if (!chain) return res.status(404).json({ message: 'Chain not found' });if (chain.UserId !== req.user.id && req.user.role !== 'admin') return res.status(403).json({ message: 'Unauthorized' });await chain.destroy();res.status(204).send();} catch (error) {res.status(500).json({ message: error.message })}};
+module.exports = { create, getAll, update, remove };

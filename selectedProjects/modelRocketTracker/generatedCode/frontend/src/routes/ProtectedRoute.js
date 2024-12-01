@@ -1,0 +1,1 @@
+import React from'react';import{Navigate,Outlet}from'react-router-dom';import{useAuth}from'../hooks/useAuth';export const ProtectedRoute=({adminOnly})=>{const{user}=useAuth();if(!user)return<Navigate to='/login'/>;if(adminOnly&&user.role!=='admin')return<Navigate to='/access-denied'/>;return<Outlet/>;};

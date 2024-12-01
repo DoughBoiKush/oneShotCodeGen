@@ -1,0 +1,1 @@
+import React from'react';import{Container,Paper,Typography,Box}from'@mui/material';import{LoginForm}from'../components/auth/LoginForm';export const LoginPage=()=>(<Container component='main' maxWidth='xs'><Paper elevation={3} sx={{mt:8,p:4}}><Typography component='h1' variant='h5' align='center'>MomoTrack Login</Typography><LoginForm/></Paper></Container>);

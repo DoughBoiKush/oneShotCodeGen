@@ -1,0 +1,11 @@
+const sequelize = require('../config/database');
+const User = require('./User');
+const Review = require('./Review');
+const ReviewCycle = require('./ReviewCycle');
+User.hasMany(Review, { as: 'reviewsGiven', foreignKey: 'reviewerId' });
+User.hasMany(Review, { as: 'reviewsReceived', foreignKey: 'employeeId' });
+Review.belongsTo(User, { as: 'reviewer', foreignKey: 'reviewerId' });
+Review.belongsTo(User, { as: 'employee', foreignKey: 'employeeId' });
+Review.belongsTo(ReviewCycle);
+ReviewCycle.hasMany(Review);
+module.exports = {sequelize,User,Review,ReviewCycle};

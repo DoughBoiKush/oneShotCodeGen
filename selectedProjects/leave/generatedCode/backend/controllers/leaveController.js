@@ -1,0 +1,4 @@
+const { LeaveRequest, User, LeaveBalance } = require('../models');
+exports.createLeaveRequest = async (req, res) => {try {const leave = await LeaveRequest.create({ ...req.body, UserId: req.user.id });res.status(201).json(leave);} catch (error) {res.status(500).json({ message: error.message })}};
+exports.getLeaveRequests = async (req, res) => {try {const where = req.user.role === 'employee' ? { UserId: req.user.id } : {};const leaves = await LeaveRequest.findAll({ where, include: [{ model: User, attributes: ['name', 'email'] }] });res.json(leaves);} catch (error) {res.status(500).json({ message: error.message })}};
+exports.updateLeaveStatus = async (req, res) => {try {const { id, status } = req.body;const leave = await LeaveRequest.findByPk(id);if (!leave) return res.status(404).json({ message: 'Leave request not found' });leave.status = status;await leave.save();res.json(leave);} catch (error) {res.status(500).json({ message: error.message })}};

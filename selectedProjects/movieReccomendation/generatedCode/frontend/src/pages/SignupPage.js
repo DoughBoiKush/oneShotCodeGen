@@ -1,0 +1,1 @@
+import { Container } from '@mui/material';import { Header } from '../components/layout/Header';import { SignupForm } from '../components/auth/SignupForm';export const SignupPage = () => {return (<><Header title="FriendFlix" /><Container><SignupForm /></Container></>);};
