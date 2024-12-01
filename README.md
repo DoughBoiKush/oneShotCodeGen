@@ -3,9 +3,9 @@
 
 A command-line tool that generates complete full stack web applications from a single prompt using AI.
 
-Update 01/12/2024: Tested 100+ webapps and sharing the results below with the latest prompt versions used to generate the apps.
+**Update 01/12/2024:** After creating and testing 100+ webapps, sharing the results below with the latest prompt versions used to generate the apps.
 
-See [examples section](examples/README.md) for detailed results and analysis of generated apps.
+See [examples section](examples/README.md) for detailed results and analysis of final 10 generated apps.
 
 
 ## Purpose
@@ -169,9 +169,10 @@ The tool provides various options for customization:
   - `code`: Generate requirements and code (without creating files)
   - `full`: Generate requirements, code, and create project files
   - `step`: Generate requirements, code, and create project files in steps
+  - `setup`: To access new version of prompts to create full project
 - `--pipeline`: Pipeline to execute in step mode
-  - `oneShotCodeGenV1`: Use our test pipeline config to create full project
-  - `requirementsV1`: Use our test pipeline config to create requirements only
+  - `oneShotCodeGenV1`: Use our latest and best version of prompts to create full project
+  - `requirementsV1`: Use our latest and best version of prompts to create requirements only
 - `--model`: AI model provider (openai/anthropic)
 - `--func-version`: Version of functional requirements prompt (v1/v2/v3)
 - `--tech-version`: Version of technical requirements prompt (v1/v2/v3)
