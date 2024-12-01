@@ -5,7 +5,7 @@ A command-line tool that generates complete full stack web applications from a s
 
 **Update 01/12/2024:** After creating and testing 100+ webapps, sharing the results below with the latest prompt versions used to generate the apps.
 
-See [examples section](examples/README.md) for detailed results and analysis of final 10 generated apps.
+See [examples section](#examples) for detailed results and analysis of final 10 generated apps.
 
 
 ## Purpose
