@@ -7,18 +7,19 @@ const userRoutes = require("./routes/userRoutes");
 const expenseRoutes = require("./routes/expenseRoutes");
 const app = express();
 
+// CORS Configuration
 const corsOptions = {
-    origin: "https://expensefrontend-three.vercel.app", // Your Vercel frontend URL
+    origin: "https://expensefrontend-three.vercel.app",
     methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
-    allowedHeaders: ["Content-Type", "Authorization"], // Include required headers
-    credentials: true, // Allow cookies or authorization headers
-  };
-  
-  app.use(
-    cors({
-      origin: "*", // Allow all origins (for debugging only)
-    })
-  );
+    allowedHeaders: ["Content-Type", "Authorization"],
+    credentials: true, // Allows cookies or authorization headers
+};
+
+// Use CORS Middleware
+app.use(cors(corsOptions));
+
+// Explicitly handle preflight requests
+app.options("*", cors(corsOptions)); // Allow all OPTIONS requests
   
 app.use(express.json());
 app.use("/api", userRoutes);
