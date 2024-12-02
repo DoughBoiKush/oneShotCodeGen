@@ -6,6 +6,9 @@ import { AuthProvider } from "./context/AuthContext";
 
 import App from "./App";
 import "./index.css";
+
+import './mock';
+
 const queryClient = new QueryClient();
 ReactDOM.render(
   <React.StrictMode>
