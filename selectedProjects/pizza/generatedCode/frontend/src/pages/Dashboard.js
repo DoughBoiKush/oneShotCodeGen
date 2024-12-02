@@ -1,4 +1,4 @@
-import { Box, Grid, Button } from "@mui/material";
+import { Box, Grid, Button, Typography } from "@mui/material";
 import { useState } from "react";
 import { useQuery, useMutation } from "@tanstack/react-query";
 import { Header } from "../components/layout/Header";
@@ -84,16 +84,18 @@ export const Dashboard = () => {
             </Grid>
           </Grid>
           <Grid item xs={12} md={6}>
+            <Typography variant="h6" sx={{ mb: 2 }}>Recent Activity</Typography>
             <RecentActivityTable
               activities={reviews?.map((r) => ({
                 id: r.id,
                 date: r.createdAt,
                 type: "Review",
-                description: `${r.User.name} reviewed ${r.PizzaPlace.name}`,
+                description: `${r.user.name} reviewed ${r.pizzaPlace.name}`,
               }))}
             />
           </Grid>
           <Grid item xs={12} md={6}>
+            <Typography variant="h6" sx={{ mb: 2 }}>Top Rated Places</Typography>
             <TopRatedPlacesTable
               places={places
                 ?.sort((a, b) => b.averageRating - a.averageRating)

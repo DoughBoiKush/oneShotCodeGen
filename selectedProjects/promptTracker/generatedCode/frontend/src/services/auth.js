@@ -1,16 +1,14 @@
-import api from "./api";
+import axiosInstance from "./api";
 export const login = async (credentials) => {
-  const response = await api.post("/auth/login", credentials);
+  const response = await axiosInstance.post("/api/auth/login", credentials);
   //console.log(response);
-  const { token, role } = response;
-  console.log(token, role);
+  const { token, user } = response;
   localStorage.setItem("token", token);
-  localStorage.setItem("role", role);
-  return { token, role };
+  localStorage.setItem("role", user.role);
+  return { token, user };
 };
 export const register = async (userData) => {
-  const response = await api.post("/auth/register", userData);
-  console.log(response);
+  const response = await axiosInstance.post("/api/auth/register", userData);
   localStorage.setItem("token", response.token);
   return response;
 };

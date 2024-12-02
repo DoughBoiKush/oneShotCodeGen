@@ -13,6 +13,7 @@ export const RecentActivityTable = ({ activities }) => {
   return (
     <DataGrid
       autoHeight
+      title="Recent Activity"
       rows={activities}
       columns={columns}
       pageSize={5}

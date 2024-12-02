@@ -14,8 +14,7 @@ const columns = [
   {
     field: "averageRating",
     headerName: "Rating",
-    flex: 1,
-    valueGetter: (params) => params.toFixed(1),
+    flex: 1
   },
 ];
 export const Places = () => {

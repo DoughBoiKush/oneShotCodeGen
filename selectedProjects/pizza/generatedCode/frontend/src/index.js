@@ -7,6 +7,7 @@ import { AuthProvider } from "./context/AuthContext";
 import { theme } from "./theme";
 import { App } from "./App";
 import "./index.css";
+import "./mock";
 const queryClient = new QueryClient();
 const root = createRoot(document.getElementById("root"));
 root.render(

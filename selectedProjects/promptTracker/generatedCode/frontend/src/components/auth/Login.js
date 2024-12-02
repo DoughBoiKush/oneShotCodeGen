@@ -27,8 +27,8 @@ const Login = () => {
 
   const onSubmit = async ({ formData }) => {
     try {
-      const { token, role } = await loginApi(formData);
-      login(token, role);
+      const { token, user } = await loginApi(formData);
+      login(token, user.role);
     } catch (error) {
       console.error("Login error:", error);
       alert(error.response?.data?.message || "Login failed");
