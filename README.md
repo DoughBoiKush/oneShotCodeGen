@@ -12,7 +12,7 @@ Changes done:-
 
 1. **Across all versions** I have added pageObject Action details while generating the page requirements.
 
-2. **Version 2:** All backend is replaces by Supabase client with react frontend. IMPACT: This allows us to allocate the previous backend code generation call to frontend leading accurate and holistic frontend code.
+2. **Version 2:** All backend is replaced by Supabase client with react frontend. IMPACT: This allows us to allocate the previous backend code generation call to frontend leading accurate and holistic frontend code.
 
 3. **Version 3:** Uses SvelteKit + Sveltestrap + Supabase, with some custom forms. tables and chart libraries that lead to less boilerplate. IMPACT: Compared to react, the code size is nearly ~20% to ~30% less in size, this means we can add more tokens to detailed requirement generations and/or reduce the number of API calls. It is also faster as token size is less
 
