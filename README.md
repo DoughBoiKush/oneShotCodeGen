@@ -7,6 +7,16 @@ A command-line tool that generates complete full stack web applications from a s
 
 See [examples section](#examples) for detailed results and analysis of final 10 generated apps.
 
+**Update 04/12/2024:** Added support for Svelte and supabase framework. Use `--pipeline oneShotCodeGenV2` to create Svelte apps.
+Changes done:-
+
+1. **Across all versions** I have added pageObject Action details while generating the page requirements.
+
+2. **Version 2:** All backend is replaces by Supabase client with react frontend. IMPACT: This allows us to allocate the previous backend code generation call to frontend leading accurate and holistic frontend code.
+
+3. **Version 3:** Uses SvelteKit + Sveltestrap + Supabase, with some custom forms. tables and chart libraries that lead to less boilerplate. IMPACT: Compared to react, the code size is nearly ~20% to ~30% less in size, this means we can add more tokens to detailed requirement generations and/or reduce the number of API calls. It is also faster as token size is less
+
+There are still some quirks to solve so that the supabase and svelte code runs in single go, model makes some silly mistakes but that can be solved by adding the appropriate prompt message after few trial and error.
 
 ## Purpose
 
@@ -171,7 +181,9 @@ The tool provides various options for customization:
   - `step`: Generate requirements, code, and create project files in steps
   - `setup`: To access new version of prompts to create full project
 - `--pipeline`: Pipeline to execute in step mode
-  - `oneShotCodeGenV1`: Use our latest and best version of prompts to create full project
+  - `oneShotCodeGenV1`: Use our latest and best version of prompts to create full project uses react,nodejs,express,sqlite and MUI
+  - `oneShotCodeGenV2`: Use our latest and best version of prompts to create full project uses react, supabase and MUI
+  - `oneShotCodeGenV3`: Use our latest and best version of prompts to create full project uses svelte,supabase,sveltestrap,svelte-charts and svelte-table
   - `requirementsV1`: Use our latest and best version of prompts to create requirements only
 - `--model`: AI model provider (openai/anthropic)
 - `--func-version`: Version of functional requirements prompt (v1/v2/v3)

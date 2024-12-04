@@ -342,7 +342,7 @@ class CodeGenerator:
 )
 @click.option(
     '--pipeline',
-    type=click.Choice(['oneShotCodeGenV1','requirementsV1']),
+    type=click.Choice(['oneShotCodeGenV1', 'oneShotCodeGenV2', 'oneShotCodeGenV3', 'requirementsV1']),
     default='oneShotCodeGenV1',
     help='Pipeline to execute in step mode'
 )

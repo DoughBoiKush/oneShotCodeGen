@@ -222,7 +222,7 @@ Code for backend:
 frontendPromptII = """
 You are an expert frontend developer. Tasked with generating all the frontend code for the application, using React.js and Material-UI.
 Based on the provided use case,UI/UX Details, data entity, and specially the UI details, tech stack, backend code and frontend code for Appbar, context, custome hooks and services generate the frontend code only for:
-1. Components (please generate all the components other than Appbar,login,signup components)
+1. Components (please generate all the components other than AppHeader,login,signup components)
 
 We will generate the code for all the pages and main app file later by using the code you will generate now. 
 
@@ -428,6 +428,621 @@ Share the output in following format:
 "actual_component_code": "the actual code for the component"
 }}
 """
+
+#Version 1.1 update move to supabase and add pageObjects to the UI details
+useCasePromptV1_1 = """
+You are a product manager tasked with creating functional requirements which will be used by an engineering manager to create technical requirements and start development. You have vast experience in writing high quality and succinct requirements, you always cover all the flows, don’t leave room for assumptions and make sure that everything is covered.
+
+You have to write the requirements based on following user input: {user_input}
+
+Points to keep in mind before you start writing the document:-
+1. While writing usecase, ensure use cases also covers admin, login,user creation and sign up flows(Sign up flows when its not an internal app).
+    a.Cover All Possible Scenarios
+    -Think through edge cases and how the system should handle them.
+    -Ensure there are no gaps in the requirements.
+    - If there are approval flows mention what kind of users can approve and reject the expense.
+    b. Maintain Consistency
+    -Use consistent terminology throughout the documentation.
+    -This helps avoid confusion and misinterpretation.
+    c.Keep It Organized
+    -Structure the document with clear headings and subheadings.
+    -Use numbered lists or bullet points for steps and criteria.
+    e. Do not add flows which require third party integration and do not add any AI flows. Or any flows that require smtp or any other email services.
+    f. Do not mention anyflow that are going to be a maybe
+    g. If needed create an user type admin if needed for example to create users or change some settings
+2. We will use react framework to code the frontend, so do not create unecessary pages, be as modular as you can be. If one page can support multiple views please do that.
+3. Use modals instead of creating new pages if needed. Add modals to the page which is already created under header modals
+4. Share all the pages needed to support the mentioned use cases
+5. We are also using following ui library MUI for UI, MUI version of react-jsonschema-form (@rjsf/core @rjsf/mui) for forms, @mui/x-data-grid for tables, and Recharts for visualizations. So no need to creat custom components for UI, just use the ones provided by all these.
+
+The output that you will give should follow the following format only mentioned details as per the format below no extra details are to be added:-
+
+1. Title:- (name of the app) 
+2. Introduction and Purpose: (A short brief on what the app is and its name)
+3. App Use Cases: (mention all the use cases the app will have)
+    UC1:Name of the use case | Short description of the use case
+    (Example: UC1:User Login and Sign up | Users can login with a link to sign up after log in user navigates to the portal)
+4. UI/UX Details:
+    a. Name of the page | short description of the page 
+    b. Explain how the user navigates to this page
+    c. what kind of users can access.
+    d. Zones: Divide the page into sections (Header Zone, Main Content Zone, Modals Zone).
+    e. Components in Each Zone: List the components used in each section.
+    f. Actions: List the actions that can be performed on the page.
+    (Example: 
+    Login and Signup Page | Users can either log in with existing credentials or create a new account (if external users are supported). 
+    a. Accessible from the app's landing page
+    b. Both admins and regular users can access this page(All users can access this page)
+    c. Zones:
+            Header Zone:
+                Components: Appbar(Contains Apptitle, NavigationLinks (Links: Teams, Sales, Profile, Admin Panel) and avatar with UserMenu)
+            Main Content Zone:
+                Components:
+                    MetricsCard (4 cards showing following metrics: Total Sales Value, Total Sales Requests, Total Open Sales Requests , Total Closed Sales Requests).
+                    RecentActivityList(table showing recent sales of the user).
+            Modals Zone:
+                Components:
+                    SalesSubmissionModal.
+                    SuccessModal
+                    ErrorModal
+            Actions:
+                enterUsername(username: string),enterPassword(password: string),clickLogin()
+"""
+supabasePrompt = """
+You are an expert developer proficient in javascript,react and Supabase. Tasked with setup of Supabase and generating the database tables for postgres,other database setup,creation, connection, .env and supabase.js file to do the CRUD operations.
+Based on the provided use case and UI/UX Details, generate the code and output it in JSON format as specified.
+
+Use Case and UI/UX Details Details: {use_case_details}
+
+**Technology Stack:**
+  - **Database:** Supabase PostgreSQL
+  - **Backend Framework:** Supabase Client Library (`@supabase/supabase-js`)
+  - **Authentication:** Supabase Authentication
+  - **Frontend Framework:** React.js (v17.0.2)
+  - **UI Library:** Material-UI (v5.0.0), @rjsf/mui for forms, @mui/x-data-grid for tables, Recharts for visualizations
+  - **State Management:** Supabase Real-Time Subscriptions, React Hooks
+  - **HTTP Client:** Supabase Client Library (`@supabase/supabase-js`)
+  - **Routing:** React Router Dom (v6.26.2)
+
+Files to create:-
+1. Create database migration file with sql code to create the tables and also seed some mock data. file path and name: project_root/supabase/migrations/001_init.sql
+2. Create supabaseClient.js file to connect to the supabase database and all the services for frontend that will connect to the supabase for auth, database operations, etc. file path and name: project_root/src/supabaseClient.js
+3. Create .env file to store the supabase url and anon key. file path and name: project_root/.env
+4. Create login and signup components for frontend and connect them to the supabase auth service. file path and name: project_root/src/components/{{filename}}.js
+
+Commands to run:-
+1. Share command to create the project folder using npx create-react-app project_root
+2. Share command to install and setup supabase database, please add the prefix cd project_root for each command: npm install -g supabase, npx supabase init
+3. Share command to install the dependencies for frontend, please add the prefix cd project_root for each command: npm install @supabase/supabase-js @rjsf/core @rjsf/mui @mui/x-data-grid recharts,npm install react react-dom react-router-dom @mui/material @emotion/react @emotion/styled
+
+Code Generation Guidelines:-
+1. Please go through all the use cases and UI/UX Details, and create database setup and connection related files and .env file and run the database setup commands. Ensure the schema created is correct and covers all the use cases.
+2. Use modern JavaScript (ES6+) syntax
+3. Please create code that is not large and verbose in size, use component imports instead of writing the code in the file itself
+4. Ensure all necessary imports are included, functions/components are exported, and code follows the latest ES6+ standards.
+5. Use async/await for asynchronous operations
+6. Implement proper error handling and validation
+7. If there are such use cases where a user can access data of other user, ensure that get apis have version where other use can fetch the data based on the usecase and is not restricted by their user id 
+8. Do not include comments explaining each part of the code
+9. Do not include any code outside the code that goes into the file content
+10. Add setup to create mock data in all the tables and also create a mock user which has all the access with email user@example.com and password "test123".
+16. If there are such use cases where a user can access data of other user, ensure that get apis have version where other use can fetch the data based on the usecase and is not restricted by their user id 
+
+
+Your response should be strictly only code , do not prettify the code DO NOT add any new line or add any extra space or indentation, in following JSON format:
+{{
+    "files": {{
+        "path/to/file": "file content"  
+    }},
+    "commands": ["list of commands to run"] 
+}}
+"""
+
+frontendPromptIV1_1 = """
+You are an expert frontend developer. Tasked with generating all the frontend code for the application, using React.js and Material-UI.
+Based on the provided use case, UI/UX Details, backend code and use that to generate the code only for all the components, it is okay if you are not able to generate all them but try to generate as many as you can.
+Use Case and UI/UX Details Details:
+{use_case_details}
+
+Code for DB,supabase client, login,signup components:
+{supabase_code}
+
+**Technology Stack:**
+  - **Database:** Supabase PostgreSQL
+  - **Backend Framework:** Supabase Client Library (`@supabase/supabase-js`)
+  - **Authentication:** Supabase Authentication
+  - **Frontend Framework:** React.js (v17.0.2)
+  - **UI Library:** Material-UI (v5.0.0), @rjsf/mui for forms, @mui/x-data-grid for tables, Recharts for visualizations
+  - **State Management:** Supabase Real-Time Subscriptions, React Hooks
+  - **HTTP Client:** Supabase Client Library (`@supabase/supabase-js`)
+  - **Routing:** React Router Dom (v6.26.2)
+
+  Files to create:-
+  - Create all the components needed for the use cases and UI/UX Details, Files path and name: project_root/src/components/{{filename}}.js
+  Commands to run:-
+  - Share command to install the dependencies for frontend, which is not in the Code for DB,supabase client, login,signup components, please add the prefix cd project_root for each command.
+
+ **Frontend Code Generation Guidelines:**
+- Use functional components, ensure the code is correct and working. As we are using JWT for authentication, ensure that the token is saved in local storage and used for all the requests.
+- Please create code that is not large and verbose in size, use component imports instead of writing the code in the file itself. Follow the folder structure of react app
+- Implement form handling, validations, and API interactions, ensure the code is modular and avoid code duplication. As we are using JWT for authentication, ensure that the token is saved in local storage and used for all the requests.
+- Ensure authprovider and queryclient is added in the index file so that the app can use them and not error out
+- Please use MUI menu and sub elements for navigation menu and user menu, please ensure appbar takes props and will support vairous menu links to be shown on different pages based on user role
+- Ensure form fields match database schema
+- Use supabse client for all the CRUD operations from frontend, Use React Hooks and Supabase's real-time subscriptions directly. 
+- Show loading state when the data is being fetched from the backend. Use MUI's Skeleton and stack component for loading state, make sure to create a new parentcomponent for it and use on wherever needed
+- Make sure UI elements have needed padding, margin, border, shadow, etc to make it look good and aligned. Use MUI AppBar component for header section to show app logo and title, menu component to show navigation links and avatar component to show user menu
+- Do not add comments
+- Do not use MUI for tables, use @mui/x-data-grid instead, Use prebuild components from MUI, use MUI version of react-jsonschema-form (@rjsf/core @rjsf/mui) for forms, Recharts for visualizations.
+- For forms use MUI version of react-jsonschema-form (@rjsf/core @rjsf/mui). Do not create forms with child elements, use following commands to install the dependencies:  npm install @rjsf/core @rjsf/utils @rjsf/validator-ajv8 @rjsf/mui. Also make sure to use validator while creating the form and import the form components from @rjsf/mui
+- Ensure all necessary imports are included, functions/components are exported, and code follows the latest ES6+ standards.
+- Make sure the assignments are done correctly, for example if we have a user object and we need to assign the user object to a variable, do not assign the user object to itself
+- Ensure all the events click are linked to an action, do not leave any action unmapped. 
+- Please ensure all the UX is correct, users should be navigated after action is performed and if no navigation they should see a message notifying the status of the action. 
+- Also the routes should be proptected if something should be shown to only logged in user and an unlogged user tries to acesss they should go back to login page.
+- Ensure that the routes are protected, if something should be shown to only logged in user and an unlogged user tries to acess they should go back to login page. Or other pages which are protected by user role, they should go to access denied page.
+- Add proper error handling for the routes, if user tries to access a route which is not defined they should see a 404 page and if there is an error in the page they should see a 500 page
+- Follow the ESLint Airbnb style guide
+- For @mui/x-data-grid the valueGetter get cell data as params and not as params.row.columnName. Instead of "valueGetter: (params) => new Date(params.row.date).toLocaleDateString()" use "valueGetter: (params) => new Date(params).toLocaleDateString()"
+- Do not include any code outside the code that goes into the file content
+- Do not generate code for other files other than services, context and custom hooks
+- Ensure that if any other librarry is imported in frontend we share the commands to install the dependencies, specially for MUI if we are using the icons library
+
+ Your response should be strictly only code , do not prettify the code DO NOT add any new line or add any extra space or indentation, in following JSON format:
+{{
+    "files": {{
+        "path/to/file": "file content"  
+    }},
+    "commands": ["list of commands to run"] 
+}}
+"""
+frontendPromptIIV1_1 = """
+You are an expert frontend developer. Tasked with generating all the frontend code for the application, using React.js and Material-UI.
+Based on the provided use case,UI/UX Details, db, supabase client, login,signup components, other componens generate the code for remaing frontend components:
+1. Components (please generate all the remaining components other than AppHeader,login,signup components)
+
+We will generate the code for all the pages and main app file later by using the code you will generate now. 
+
+**Use Case and UI/UX Details and UI details:**
+{use_case_details}
+
+Code for db,supabase client, login,signup components:
+{supabase_code}
+
+Code for frontend components:
+{components_code1}
+
+**Technology Stack:**
+  - **Database:** Supabase PostgreSQL
+  - **Backend Framework:** Supabase Client Library (`@supabase/supabase-js`)
+  - **Authentication:** Supabase Authentication
+  - **Frontend Framework:** React.js (v17.0.2)
+  - **UI Library:** Material-UI (v5.0.0), @rjsf/mui for forms, @mui/x-data-grid for tables, Recharts for visualizations
+  - **State Management:** Supabase Real-Time Subscriptions, React Hooks
+  - **HTTP Client:** Supabase Client Library (`@supabase/supabase-js`)
+  - **Routing:** React Router Dom (v6.26.2)
+
+  Files to create:-
+  - Create all the components needed for the use cases and UI/UX Details, Files path and name: project_root/src/components/{{filename}}.js
+  Commands to run:-
+  - Share command to install the dependencies for frontend, which is not in the Code for DB,supabase client, login,signup components, please add the prefix cd project_root for each command.
+
+ **Frontend Code Generation Guidelines:**
+- Use functional components, ensure the code is correct and working. As we are using JWT for authentication, ensure that the token is saved in local storage and used for all the requests.
+- Please create code that is not large and verbose in size, use component imports instead of writing the code in the file itself. Follow the folder structure of react app
+- Implement form handling, validations, and API interactions, ensure the code is modular and avoid code duplication. As we are using JWT for authentication, ensure that the token is saved in local storage and used for all the requests.
+- Ensure authprovider and queryclient is added in the index file so that the app can use them and not error out
+- Please use MUI menu and sub elements for navigation menu and user menu, please ensure appbar takes props and will support vairous menu links to be shown on different pages based on user role
+- Ensure form fields match database schema
+- Use supabse client for all the CRUD operations from frontend, Use React Hooks and Supabase's real-time subscriptions directly. 
+- Show loading state when the data is being fetched from the backend. Use MUI's Skeleton and stack component for loading state, make sure to create a new parentcomponent for it and use on wherever needed
+- Make sure UI elements have needed padding, margin, border, shadow, etc to make it look good and aligned. Use MUI AppBar component for header section to show app logo and title, menu component to show navigation links and avatar component to show user menu
+- Do not add comments
+- Do not use MUI for tables, use @mui/x-data-grid instead, Use prebuild components from MUI, use MUI version of react-jsonschema-form (@rjsf/core @rjsf/mui) for forms, Recharts for visualizations.
+- For forms use MUI version of react-jsonschema-form (@rjsf/core @rjsf/mui). Do not create forms with child elements, use following commands to install the dependencies:  npm install @rjsf/core @rjsf/utils @rjsf/validator-ajv8 @rjsf/mui. Also make sure to use validator while creating the form and import the form components from @rjsf/mui
+- Ensure all necessary imports are included, functions/components are exported, and code follows the latest ES6+ standards.
+- Make sure the assignments are done correctly, for example if we have a user object and we need to assign the user object to a variable, do not assign the user object to itself
+- Ensure all the events click are linked to an action, do not leave any action unmapped. 
+- Please ensure all the UX is correct, users should be navigated after action is performed and if no navigation they should see a message notifying the status of the action. 
+- Also the routes should be proptected if something should be shown to only logged in user and an unlogged user tries to acesss they should go back to login page.
+- Ensure that the routes are protected, if something should be shown to only logged in user and an unlogged user tries to acess they should go back to login page. Or other pages which are protected by user role, they should go to access denied page.
+- Add proper error handling for the routes, if user tries to access a route which is not defined they should see a 404 page and if there is an error in the page they should see a 500 page
+- Follow the ESLint Airbnb style guide
+- For @mui/x-data-grid the valueGetter get cell data as params and not as params.row.columnName. Instead of "valueGetter: (params) => new Date(params.row.date).toLocaleDateString()" use "valueGetter: (params) => new Date(params).toLocaleDateString()"
+- Do not include any code outside the code that goes into the file content
+- Do not generate code for other files other than services, context and custom hooks
+- Ensure that if any other librarry is imported in frontend we share the commands to install the dependencies, specially for MUI if we are using the icons library
+ 
+ Your response should be strictly only code , do not prettify the code DO NOT add any new line(\n) or add any extra space or indentation for js files, in following JSON format:
+{{
+    "files": {{
+        "path/to/file": "file content"  
+    }},
+    "commands": ["list of commands to run"] 
+}}
+"""
+frontendPromptIIIV1_1 = """
+You are an expert frontend developer. Tasked with generating all the frontend code for the application, using React.js and Material-UI.
+Based on the provided use case,UI/UX Details, data models, and specially the UI details, tech stack, code generated so far, generate the remaining frontend code for:
+1. Any missing frontend code
+2. Pages (please generate all the pages needed for the use cases and UI/UX Details)
+3. Main App, Index and Routes file
+3. MUI Theme, to ensure the theme is consistent across the app, ensure the UI looks good
+
+**Use Case and UI/UX Details and UI details:**
+{use_case_details}
+
+Code for db,supabase client, login,signup components:
+{supabase_code}
+
+Code for frontend components:
+{components_code1}
+
+Code for other frontend components:
+{components_code2}
+
+**Technology Stack:**
+  - **Database:** Supabase PostgreSQL
+  - **Backend Framework:** Supabase Client Library (`@supabase/supabase-js`)
+  - **Authentication:** Supabase Authentication
+  - **Frontend Framework:** React.js (v17.0.2)
+  - **UI Library:** Material-UI (v5.0.0), @rjsf/mui for forms, @mui/x-data-grid for tables, Recharts for visualizations
+  - **State Management:** Supabase Real-Time Subscriptions, React Hooks
+  - **HTTP Client:** Supabase Client Library (`@supabase/supabase-js`)
+  - **Routing:** React Router Dom (v6.26.2)
+
+  Files to create:-
+  - Create all the components needed for the use cases and UI/UX Details, Files path and name: project_root/src/components/{{filename}}.js
+  - Create all the pages needed for the use cases and UI/UX Details, Files path and name: project_root/src/pages/{{filename}}.js
+  - Create main app file, index file and css file, Files path and name: project_root/src/{{filename}}.js or project_root/src/{{filename}}.css
+  Commands to run:-
+  - Share command to install the dependencies for frontend, which is not in the Code for DB,supabase client, login,signup components, other components, please add the prefix cd project_root for each command.
+
+  
+**Code Generation Guidelines:**
+
+- Ensure pages have all the necessary components including the appbar sections. The code should be correct, working and nothing should be missed. Make sure to save the auth token in local storage or ensure that user is logged in.
+- Please create code that is not large and verbose in size, use component imports instead of writing the code in the file itself. Follow the folder structure of react app
+- Always ensure that components using React Router hooks (useNavigate, useParams, useLocation, etc.) are wrapped by a <Router>. Ensure all the pages have the appbar component as per the UI/UX Detailss.
+- Place the <Router> component as high as possible in your component tree (e.g., in index.js or App.js).
+- Please ensure that when user comes on "/" route if they are not logged in they should go to login page and if logged in they should go to dashboard/home page
+- Implement form handling, validations, and API interactions, ensure the code is modular and avoid code duplication
+- Ensure router, authprovider and queryclient is added in the index file so that the app can use them and not error out. Also please ensure router is wrapping the authprovider.
+- Ensure routes are setup correctly when user lands on route "/" if they not logged in they should go to login page and if logged in they should go to dashboard/home page,also navigation from menu and user menu and from the components should work. When using nested routes in React Router v6, you need to use Outlet for nested route rendering.
+- Ensure that the routes are protected, if something should be shown to logged in user and they acess to they should go back to login page. Or other pages which are protected by user role, they should go to access denied page.
+- Add proper error handling for the routes, if user tries to access a route which is not defined they should see a 404 page and if there is an error in the page they should see a 500 page
+- Please use MUI menu and sub elements for navigation menu and user menu, also ensure the applogo, menu navigation links, user menu is used correctly in pages based on the use case and UI/UX Details
+- Ensure form fields match database schema
+- Ensure all events on the UI are linked to the correct backend action(hooks and services), do not leave any action unmapped
+- Ensure API calls match backend endpoints, do not miss any necessary imports for all the files
+- Show loading state when the data is being fetched from the backend. Use MUI Skeleton and stack component for loading state
+- Make sure to use the correct MUI components for the UI elements, do not use the same component for different purposes
+- Do not add comments
+- Do not use MUI for tables, use @mui/x-data-grid instead, also use prebuild components from MUI, use MUI version of react-jsonschema-form (@rjsf/core @rjsf/mui) for forms, Recharts for visualizations.
+- For forms use MUI version of react-jsonschema-form (@rjsf/core @rjsf/mui). Do not create forms with child elements, use following commands to install the dependencies:  npm install @rjsf/core @rjsf/utils @rjsf/validator-ajv8 @rjsf/mui. Also make sure to use validator while creating the form and import the form components from @rjsf/mui
+- Ensure without fail that all UI elements and component and pages are generated in the code ouput, there should be no compromise on this.
+- Ensure all necessary imports are included, functions/components are exported, and code follows the latest ES6+ standards.
+- Make sure the assignments are done correctly, for example if we have a user object and we need to assign the user object to a variable, do not assign the user object to itself
+- Ensure all the events click are linked to backend action, do not leave any action unmapped. 
+- Please ensure all the UX is correct, users should be navigated after action is performed and if no navigation they should see a message notifying the status of the action.
+- Also the routes should be proptected if something should be shown to logged in user and they acess to they should go back to login page.
+- Ensure that the login and signup pages are generated correctly and are working and user is redirected to dashboard/home page after login
+- Follow the ESLint Airbnb style guide
+- For @mui/x-data-grid the valueGetter get cell data as params and not as params.row.columnName. Instead of "valueGetter: (params) => new Date(params.row.date).toLocaleDateString()" use "valueGetter: (params) => new Date(params).toLocaleDateString()"
+- Do not include any code outside the code that goes into the file content
+- Ensure that if any other library is imported in frontend we share the commands to install the dependencies, specially for MUI if we are using the icons library
+- As we will use npx to setup a base react app, do share if any changes are needed in app.js, app.css or index.js or index.css
+
+ Your response should be strictly only code , do not prettify the code, DO NOT add any new line(\n) or add any extra space or indentation for js files, in following JSON format:
+{{
+    "files": {{
+        "path/to/file": "file content"  
+    }},
+    "commands": ["list of commands to run"] 
+}}
+"""
+
+#Version 1.2 update move to supabase and add pageObjects to the UI details
+useCasePromptV1_2 = """
+You are a product manager tasked with creating functional requirements which will be used by an engineering manager to create technical requirements and start development. You have vast experience in writing high quality and succinct requirements, you always cover all the flows, don’t leave room for assumptions and make sure that everything is covered.
+
+You have to write the requirements based on following user input: {user_input}
+
+Points to keep in mind before you start writing the document:-
+1. While writing usecase, ensure use cases also covers admin, login,user creation and sign up flows(Sign up flows when its not an internal app).
+    a.Cover All Possible Scenarios
+    -Think through edge cases and how the system should handle them.
+    -Ensure there are no gaps in the requirements.
+    - If there are approval flows mention what kind of users can approve and reject the expense.
+    b. Maintain Consistency
+    -Use consistent terminology throughout the documentation.
+    -This helps avoid confusion and misinterpretation.
+    c.Keep It Organized
+    -Structure the document with clear headings and subheadings.
+    -Use numbered lists or bullet points for steps and criteria.
+    e. Do not add flows which require third party integration and do not add any AI flows. Or any flows that require smtp or any other email services.
+    f. Do not mention anyflow that are going to be a maybe
+    g. If needed create an user type admin if needed for example to create users or change some settings
+2. We will use react framework to code the frontend, so do not create unecessary pages, be as modular as you can be. If one page can support multiple views please do that.
+3. Use modals instead of creating new pages if needed. Add modals to the page which is already created under header modals
+4. Share all the pages needed to support the mentioned use cases
+5. We are also using following ui library MUI for UI, MUI version of react-jsonschema-form (@rjsf/core @rjsf/mui) for forms, @mui/x-data-grid for tables, and Recharts for visualizations. So no need to creat custom components for UI, just use the ones provided by all these.
+
+The output that you will give should follow the following format only mentioned details as per the format below no extra details are to be added:-
+
+1. Title:- (name of the app) 
+2. Introduction and Purpose: (A short brief on what the app is and its name)
+3. App Use Cases: (mention all the use cases the app will have)
+    UC1:Name of the use case | Short description of the use case
+    (Example: UC1:User Login and Sign up | Users can login with a link to sign up after log in user navigates to the portal)
+4. UI/UX Details:
+    a. Name of the page | short description of the page 
+    b. Explain how the user navigates to this page
+    c. what kind of users can access.
+    d. Zones: Divide the page into sections (Header Zone, Main Content Zone, Modals Zone).
+    e. Components in Each Zone: List the components used in each section.
+    f. Actions: List the actions that can be performed on the page.
+    (Example: 
+    Login and Signup Page | Users can either log in with existing credentials or create a new account (if external users are supported). 
+    a. Accessible from the app's landing page
+    b. Both admins and regular users can access this page(All users can access this page)
+    c. Zones:
+            Header Zone:
+                Components: Appbar(Contains Apptitle, NavigationLinks (Links: Teams, Sales, Profile, Admin Panel) and avatar with UserMenu)
+            Main Content Zone:
+                Components:
+                    MetricsCard (4 cards showing following metrics: Total Sales Value, Total Sales Requests, Total Open Sales Requests , Total Closed Sales Requests).
+                    RecentActivityList(table showing recent sales of the user).
+            Modals Zone:
+                Components:
+                    SalesSubmissionModal.
+                    SuccessModal
+                    ErrorModal
+            Actions:
+                enterUsername(username: string),enterPassword(password: string),clickLogin()
+"""
+supabasePromptV1_2 = """
+You are an expert developer proficient in JavaScript, Svelte v4, SvelteKit v1, and Supabase. Tasked with setup of Supabase and generating the database tables for PostgreSQL, other database setup, creation, connection, .env, and supabaseClient.js file to perform CRUD operations.
+Based on the provided use case and UI/UX Details, generate the code and output it in JSON format as specified.
+
+Use Case and UI/UX Details Details: {use_case_details}
+
+**Technology Stack:**
+  - **Database:** Supabase PostgreSQL
+  - **Backend Framework:** Supabase Client Library (`@supabase/supabase-js`)
+  - **Authentication:** Supabase Authentication
+  - **Frontend Framework:** SvelteKit v1 (using Svelte v4)
+  - **UI Library:** Sveltestrap for components, svelte-use-form for forms, svelte-table for tables, SvelteCharts for visualizations
+  - **State Management:** Supabase Real-Time Subscriptions, Svelte Stores
+  - **HTTP Client:** Supabase Client Library (`@supabase/supabase-js`)
+  - **Routing:** SvelteKit v1's built-in file-based routing
+
+Files to create:-
+1. Create database migration file with SQL code to create the tables and seed some mock data. file path and name: project_root/supabase/migrations/001_init.sql
+2. Create supabaseClient.js file to connect to the Supabase database and all the services for frontend that will connect to Supabase for auth, database operations, etc. file path and name: project_root/src/lib/supabaseClient.js
+3. Create .env file to store the Supabase URL and anon key. file path and name: project_root/.env
+4. Create login and signup components for frontend and connect them to the Supabase auth service. file path and name: project_root/src/routes/auth/+page.svelte
+
+Commands to run:-
+1. Share command to create the project folder using npm create svelte project_root
+2. Share command to install the correct version of Svelte and SvelteKit, please add the prefix cd project_root for each command: npm install svelte@4 sveltekit@1
+2. Share command to install and setup Supabase database, please add the prefix cd project_root for each command: npm install -g supabase, npx supabase init
+3. Share command to install the dependencies for frontend, please add the prefix cd project_root for each command: npm install @supabase/supabase-js sveltestrap bootstrap svelte-use-form svelte-table svelte-charts, npm install @sveltejs/adapter-node
+
+Code Generation Guidelines:-
+1. Please go through all the use cases and UI/UX Details, and create database setup and connection-related files, and .env file, and run the database setup commands. Ensure the schema created is correct and covers all the use cases.
+2. Use modern JavaScript (ES6+) syntax.
+3. Please create code that is not large and verbose in size. Use reusable Svelte components instead of writing the code directly in routes or pages.
+4. Ensure all necessary imports are included, functions/components are exported, and code follows the latest ES6+ standards.
+5. Use async/await for asynchronous operations.
+6. Implement proper error handling and validation.
+7. If there are such use cases where a user can access data of another user, ensure that get APIs have a version where other users can fetch the data based on the use case and are not restricted by their user ID.
+8. Do not include comments explaining each part of the code.
+9. Do not include any code outside the code that goes into the file content.
+10. Add setup to create mock data in all the tables and also create a mock user with email user@example.com and password "test123".
+11. Ensure proper integration of svelte-use-form for forms, svelte-table for tables, and SvelteCharts for visualizations.
+
+Your response should be strictly only code, do not prettify the code, DO NOT add any new line or add any extra space or indentation, in the following JSON format:
+{{
+    "files": {{
+        "path/to/file": "file content"
+    }},
+    "commands": ["list of commands to run"]
+}}
+"""
+
+
+
+frontendPromptIV1_2 = """
+You are an expert frontend developer. Tasked with generating all the frontend code for the application, using SvelteKit and its related libraries.
+Based on the provided use case, UI/UX Details, backend code and use that to generate the code only for all the components, it is okay if you are not able to generate all them but try to generate as many as you can.
+Use Case and UI/UX Details Details:
+{use_case_details}
+
+Code for DB, supabase client, login, signup components:
+{supabase_code}
+
+**Technology Stack:**
+  - **Database:** Supabase PostgreSQL
+  - **Backend Framework:** Supabase Client Library (`@supabase/supabase-js`)
+  - **Authentication:** Supabase Authentication
+  - **Frontend Framework:** SvelteKit v1 (using Svelte v4)
+  - **UI Library:** Sveltestrap for components, svelte-use-form for forms, svelte-table for tables, SvelteCharts for visualizations
+  - **State Management:** Supabase Real-Time Subscriptions, Svelte Stores
+  - **HTTP Client:** Supabase Client Library (`@supabase/supabase-js`)
+  - **Routing:** SvelteKit v1's built-in file-based routing
+
+  Files to create:-
+  - Create all the components needed for the use cases and UI/UX Details, Files path and name: project_root/src/lib/components/{{filename}}.svelte
+  Commands to run:-
+  - Share command to install the dependencies for frontend, which is not in the Code for DB, supabase client, login, signup components, please add the prefix cd project_root for each command.
+
+ **Frontend Code Generation Guidelines:**
+- Use Svelte components, ensure the code is correct and working. As we are using JWT for authentication, ensure that the token is saved in local storage and used for all the requests.
+- Please create code that is not large and verbose in size, use reusable Svelte components instead of writing all the code in the routes directly.
+- Implement form handling, validations, and API interactions, ensure the code is modular and avoid code duplication. As we are using JWT for authentication, ensure that the token is saved in local storage and used for all the requests.
+- Ensure a layout component is used for navigation and other reusable UI elements like headers and footers.
+- Please use Sveltestrap’s navigation components for menus and ensure menus take props to support various links based on user roles.
+- Ensure form fields match database schema.
+- Use the Supabase client for all CRUD operations from the frontend. Use Svelte's stores for global state and Supabase's real-time subscriptions directly.
+- Show loading state when the data is being fetched from the backend. Use Sveltestrap’s components like spinners or placeholders for loading states. Create a new reusable component for this and use it wherever needed.
+- Make sure UI elements have needed padding, margin, border, shadow, etc., to make it look good and aligned. Use Sveltestrap’s components for headers, menus, and other reusable elements.
+- Do not add comments.
+- For tables, use `svelte-table` instead of building custom tables.
+- For charts, use `SvelteCharts` for all visualizations. Use prebuilt components and minimal custom logic to integrate them.
+- Ensure all necessary imports are included, functions/components are exported, and code follows the latest ES6+ standards.
+- Ensure all actions (e.g., button clicks) are linked to a specific behavior, do not leave any action unmapped.
+- Please ensure all the UX is correct; users should be navigated after an action is performed, and if no navigation is required, they should see a message notifying the status of the action.
+- Ensure that the routes are protected; if something should be shown only to logged-in users and an unlogged user tries to access it, they should be redirected to the login page.
+- Also, ensure protected pages based on user roles redirect to an access denied page for unauthorized users.
+- Add proper error handling for the routes. If a user tries to access a route that is not defined, they should see a 404 page, and if there is an error in the page, they should see a 500 page.
+- Follow the ESLint Airbnb style guide.
+- Ensure that the `svelte-table` data structure and event bindings align with the database schema and use Supabase for data updates.
+- Ensure all imported libraries are properly included, and commands to install the dependencies are provided.
+
+ Your response should be strictly only code, do not prettify the code, DO NOT add any new line or add any extra space or indentation, in the following JSON format:
+{{
+    "files": {{
+        "path/to/file": "file content"
+    }},
+    "commands": ["list of commands to run"]
+}}
+"""
+
+frontendPromptIIV1_2 = """
+You are an expert frontend developer. Tasked with generating all the frontend code for the application, using SvelteKit and its related libraries.
+Based on the provided use case, UI/UX Details, database setup, Supabase client, login, signup components, and other components, generate the code for the remaining frontend components:
+1. Components (please generate all the remaining components other than layout, login, and signup components).
+
+We will generate the code for all the pages and the main app file later by using the code you generate now.
+
+**Use Case and UI/UX Details and UI Details:**
+{use_case_details}
+
+Code for database setup, Supabase client, login, signup components:
+{supabase_code}
+
+Code for frontend components:
+{components_code1}
+
+**Technology Stack:**
+  - **Database:** Supabase PostgreSQL
+  - **Backend Framework:** Supabase Client Library (`@supabase/supabase-js`)
+  - **Authentication:** Supabase Authentication
+  - **Frontend Framework:** SvelteKit v1 (using Svelte v4)
+  - **UI Library:** Sveltestrap for components, svelte-use-form for forms, svelte-table for tables, SvelteCharts for visualizations
+  - **State Management:** Supabase Real-Time Subscriptions, Svelte Stores
+  - **Routing:** SvelteKit v1's built-in file-based routing
+
+  Files to create:-
+  - Create all the components needed for the use cases and UI/UX Details. Files path and name: project_root/src/lib/components/{{filename}}.svelte
+  Commands to run:-
+  - Share command to install the dependencies for frontend, which are not in the code for database setup, Supabase client, login, signup components, please add the prefix cd project_root for each command.
+
+ **Frontend Code Generation Guidelines:**
+- Use Svelte components, ensure the code is correct and working. As we are using JWT for authentication, ensure that the token is saved in local storage and used for all the requests.
+- Please create code that is not large and verbose in size. Use reusable Svelte components instead of writing all the code in the routes directly.
+- Implement form handling, validations, and API interactions, ensure the code is modular and avoid code duplication. As we are using JWT for authentication, ensure that the token is saved in local storage and used for all the requests.
+- Ensure a layout component is used for navigation and other reusable UI elements like headers and footers.
+- Please use Sveltestrap’s navigation components for menus and ensure menus take props to support various links based on user roles.
+- Ensure form fields match the database schema.
+- Use the Supabase client for all CRUD operations from the frontend. Use Svelte's stores for global state and Supabase's real-time subscriptions directly.
+- Show loading state when the data is being fetched from the backend. Use Sveltestrap’s components like spinners or placeholders for loading states. Create a new reusable component for this and use it wherever needed.
+- Make sure UI elements have needed padding, margin, border, shadow, etc., to make them look good and aligned. Use Sveltestrap’s components for headers, menus, and other reusable elements.
+- Do not add comments.
+- For tables, use `svelte-table` instead of building custom tables.
+- For charts, use `SvelteCharts` for all visualizations. Use prebuilt components and minimal custom logic to integrate them.
+- Ensure all necessary imports are included, functions/components are exported, and code follows the latest ES6+ standards.
+- Ensure all actions (e.g., button clicks) are linked to a specific behavior. Do not leave any action unmapped.
+- Please ensure all the UX is correct. Users should be navigated after an action is performed, and if no navigation is required, they should see a message notifying the status of the action.
+- Ensure that the routes are protected. If something should be shown only to logged-in users and an unlogged user tries to access it, they should be redirected to the login page.
+- Also, ensure protected pages based on user roles redirect to an access denied page for unauthorized users.
+- Add proper error handling for the routes. If a user tries to access a route that is not defined, they should see a 404 page, and if there is an error in the page, they should see a 500 page.
+- Follow the ESLint Airbnb style guide.
+- Ensure that the `svelte-table` data structure and event bindings align with the database schema and use Supabase for data updates.
+- Ensure all imported libraries are properly included, and commands to install the dependencies are provided.
+
+ Your response should be strictly only code, do not prettify the code, DO NOT add any new line (\n) or add any extra space or indentation for Svelte files, in the following JSON format:
+{{
+    "files": {{
+        "path/to/file": "file content"
+    }},
+    "commands": ["list of commands to run"]
+}}
+"""
+
+frontendPromptIIIV1_2 = """
+You are an expert frontend developer. Tasked with generating all the frontend code for the application, using SvelteKit and its related libraries.
+Based on the provided use case, UI/UX Details, data models, and specially the UI details, tech stack, code generated so far, generate the remaining frontend code for:
+1. Any missing frontend code
+2. Pages (please generate all the pages needed for the use cases and UI/UX Details)
+3. Main App layout, Index, and Routes
+4. Sveltestrap Theme or any configurations needed to ensure consistent styling across the app and ensure the UI looks good
+
+**Use Case and UI/UX Details and UI Details:**
+{use_case_details}
+
+Code for database, Supabase client, login, signup components:
+{supabase_code}
+
+Code for frontend components:
+{components_code1}
+
+Code for other frontend components:
+{components_code2}
+
+**Technology Stack:**
+  - **Database:** Supabase PostgreSQL
+  - **Backend Framework:** Supabase Client Library (`@supabase/supabase-js`)
+  - **Authentication:** Supabase Authentication
+  - **Frontend Framework:** SvelteKit v1 (using Svelte v4)
+  - **UI Library:** Sveltestrap for components, svelte-use-form for forms, svelte-table for tables, SvelteCharts for visualizations
+  - **State Management:** Supabase Real-Time Subscriptions, Svelte Stores
+  - **Routing:** SvelteKit v1's built-in file-based routing
+
+  Files to create:-
+  - Create all the components needed for the use cases and UI/UX Details. Files path and name: project_root/src/routes/{{folder_name}}/{{filename}}.svelte
+  - Create the app.css file for global styling, file path and name: project_root/src/app.css
+  - Create other files needed for the app: project_root/src/{{filename}}.{{extension}}
+  Commands to run:-
+  - Share command to install the dependencies for frontend, which are not in the code for database setup, Supabase client, login, signup components, please add the prefix cd project_root for each command.
+
+**Code Generation Guidelines:**
+- Ensure pages have all the necessary components, including navigation headers and footers. The code should be correct, working, and nothing should be missed. Ensure that tokens are saved in local storage for authentication.
+- Please create concise and modular Svelte components. Use reusable components instead of duplicating code across pages. Follow SvelteKit’s folder structure for routes and layouts.
+- Ensure a `<Layout>` component is used for shared elements like navigation menus, headers, and footers across pages.
+- Use Sveltestrap for navigation menus and ensure that links and menu items support dynamic rendering based on user roles. Integrate the app logo and other branding elements into the navigation.
+- Implement form handling using `svelte-use-form` with validation and error handling. Use modular API calls for form submissions and updates.
+- Use Supabase client for all CRUD operations. Use Svelte stores for shared state and Supabase's real-time subscriptions for live updates.
+- Show a loading spinner (from Sveltestrap) or a placeholder when fetching data. Create a reusable component for loading states and use it consistently across the app.
+- Ensure consistent padding, margins, and other styling for UI elements. Use Sveltestrap's built-in styling for buttons, modals, and forms wherever possible.
+- Do not add comments in the code.
+- Use `svelte-table` for tables instead of building custom ones, and ensure it integrates seamlessly with Supabase data.
+- For charts, use `SvelteCharts` for all visualizations, and ensure that charts dynamically update based on the data returned from Supabase.
+- Ensure all necessary imports are included, and components are exported correctly. Adhere to ES6+ standards.
+- Implement protected routes using SvelteKit hooks. If a user is not logged in, redirect them to the login page. If a user accesses a page restricted by their role, redirect them to an access-denied page.
+- Implement error handling for routes. If a route is not defined, show a 404 page. If an error occurs, show a 500 page.
+- For forms, match all fields to the database schema and validate the inputs before submitting.
+- Map all UI interactions (e.g., button clicks) to backend actions using modular API services. Do not leave any event unmapped.
+- Ensure UX is consistent across the app. Navigate users after successful actions and display status messages when navigation is not required.
+- Bootstrap CSS: Ensure Bootstrap is included in your project by importing it into your global CSS or layout file
+- Ensure that login and signup pages are working correctly and redirect users to the dashboard/home page after login.
+- Share all commands needed to install libraries and dependencies, particularly for Sveltestrap, svelte-use-form, svelte-table, and SvelteCharts.
+- Use the ESLint Airbnb style guide for consistent code formatting.
+- Do not include code outside the specified files.
+- If additional configuration is needed for SvelteKit (e.g., adapters), include those instructions in the setup commands.
+
+Your response should be strictly only code, do not prettify the code, DO NOT add any new line (\n) or add any extra space or indentation for Svelte files, in the following JSON format:
+{{
+    "files": {{
+        "path/to/file": "file content"
+    }},
+    "commands": ["list of commands to run"]
+}}
+"""
+
+
+
 def get_pipeline_config(
     pipeline_name: str,
     model_provider,
@@ -456,7 +1071,7 @@ def get_pipeline_config(
                 model_provider=model_provider
             ),
             CodeGenerationStep(
-                name="backend_code",
+                name="supabase_code",
                 prompt_template=backendPrompt,
                 model_provider=model_provider,
                 output_path=f"{base_path}/backend"
@@ -476,6 +1091,68 @@ def get_pipeline_config(
             CodeGenerationStep(
                 name="frontend_code3",
                 prompt_template=frontendPromptIII,
+                model_provider=model_provider,
+                output_path=f"{base_path}/frontend"
+            )
+        ],
+        'oneShotCodeGenV2': [
+            RequirementGenerationStep(
+                name="use_case_details",
+                prompt_template=useCasePromptV1_1,
+                model_provider=model_provider
+            ),
+            CodeGenerationStep(
+                name="supabase_code",
+                prompt_template=supabasePrompt,
+                model_provider=model_provider,
+                output_path=f"{base_path}/backend"
+            ),
+            CodeGenerationStep(
+                name="components_code1",
+                prompt_template=frontendPromptIV1_1,
+                model_provider=model_provider,
+                output_path=f"{base_path}/frontend"
+            ),
+            CodeGenerationStep(
+                name="components_code2",
+                prompt_template=frontendPromptIIV1_1,
+                model_provider=model_provider,
+                output_path=f"{base_path}/frontend"
+            ),
+            CodeGenerationStep(
+                name="components_code3",
+                prompt_template=frontendPromptIIIV1_1,
+                model_provider=model_provider,
+                output_path=f"{base_path}/frontend"
+            )
+        ],
+        'oneShotCodeGenV3': [
+            RequirementGenerationStep(
+                name="use_case_details",
+                prompt_template=useCasePromptV1_2,
+                model_provider=model_provider
+            ),
+            CodeGenerationStep(
+                name="supabase_code",
+                prompt_template=supabasePromptV1_2,
+                model_provider=model_provider,
+                output_path=f"{base_path}/backend"
+            ),
+            CodeGenerationStep(
+                name="components_code1",
+                prompt_template=frontendPromptIV1_2,
+                model_provider=model_provider,
+                output_path=f"{base_path}/frontend"
+            ),
+            CodeGenerationStep(
+                name="components_code2",
+                prompt_template=frontendPromptIIV1_2,
+                model_provider=model_provider,
+                output_path=f"{base_path}/frontend"
+            ),
+            CodeGenerationStep(
+                name="components_code3",
+                prompt_template=frontendPromptIIIV1_2,
                 model_provider=model_provider,
                 output_path=f"{base_path}/frontend"
             )
